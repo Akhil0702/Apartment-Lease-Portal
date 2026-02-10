@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Apartment</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f2f5;
+    }
+    .navbar {
+      background-color: #333;
+      color: white;
+      padding: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar-brand {
+      margin-left: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .navbar-links {
+      margin-right: 20px;
+    }
+    .navbar-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .section {
+      background-color: white;
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .section-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    select, input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .button-primary {
+      background-color: #4285f4;
+      color: white;
+    }
+    .button-secondary {
+      background-color: #5f6368;
+      color: white;
+    }
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      margin-right: -10px;
+      margin-left: -10px;
+    }
+    .form-column {
+      flex: 0 0 50%;
+      max-width: 50%;
+      padding-right: 10px;
+      padding-left: 10px;
+      box-sizing: border-box;
+    }
+    @media (max-width: 768px) {
+      .form-column {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="navbar-brand">Apartment Management</div>
+    <div class="navbar-links">
+      <a href="{{ url_for('manager_home') }}">Dashboard</a>
+      <a href="{{ url_for('manager_logout') }}">Logout</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Add New Apartment to {{ community.name }}</h1>
+    
+    <div class="section">
+      <div class="section-title">Apartment Information</div>
+      <form method="POST" action="{{ url_for('manager_add_apartment') }}">
+        <div class="form-row">
+          <div class="form-column">
+            <div class="form-group">
+              <label for="apartment_number">Apartment Number</label>
+              <input type="text" id="apartment_number" name="apartment_number" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="floor_number">Floor Number</label>
+              <input type="text" id="floor_number" name="floor_number" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="bedrooms">Bedrooms</label>
+              <input type="number" id="bedrooms" name="bedrooms" min="0" step="1" required>
+            </div>
+          </div>
+          
+          <div class="form-column">
+            <div class="form-group">
+              <label for="bathrooms">Bathrooms</label>
+              <input type="number" id="bathrooms" name="bathrooms" min="0" step="0.5" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="rent">Monthly Rent ($)</label>
+              <input type="number" id="rent" name="rent" min="0" step="0.01" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select id="status" name="status" required>
+                <option value="available">Available</option>
+                <option value="occupied">Occupied</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-title">Address Information</div>
+        <div class="form-row">
+          <div class="form-column">
+            <div class="form-group">
+              <label for="address">Street Address</label>
+              <input type="text" id="address" name="address" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="city">City</label>
+              <input type="text" id="city" name="city" required>
+            </div>
+          </div>
+          
+          <div class="form-column">
+            <div class="form-group">
+              <label for="state">State</label>
+              <input type="text" id="state" name="state" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="zipcode">Zip Code</label>
+              <input type="text" id="zipcode" name="zipcode" required>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section-title">Additional Details</div>
+        <div class="form-group">
+          <label for="dimensions">Dimensions (sq ft)</label>
+          <input type="text" id="dimensions" name="dimensions" required>
+        </div>
+        
+        <div class="form-actions">
+          <a href="{{ url_for('manager_view_apartments') }}" class="button button-secondary">Cancel</a>
+          <button type="submit" class="button button-primary">Add Apartment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

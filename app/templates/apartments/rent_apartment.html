@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rent Apartment</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script>
+    let unavailableDates = `{{ unavailable_dates | tojson | safe }}`;
+    let nextAvailableDate = "{{ next_available_date }}";
+
+    function setMinDates() {
+        // Use nextAvailableDate as the minimum start date for rentals
+        document.getElementById('start_date').min = nextAvailableDate;
+        document.getElementById('start_date').value = nextAvailableDate;
+        
+        // Set default lease term to 12 months
+        document.getElementById('lease_term').value = "12";
+        
+        // Calculate end date based on start date and lease term
+        updateEndDate();
+        
+        // Add event listeners to update end date when start date or lease term changes
+        document.getElementById('start_date').addEventListener('change', updateEndDate);
+        document.getElementById('lease_term').addEventListener('change', updateEndDate);
+    }
+
+    function disableUnavailableDates() {
+        const startDatePicker = document.getElementById('start_date');
+
+        // Alert if selected start date is unavailable
+        unavailableDates.forEach(date => {
+            if (startDatePicker.value === date) {
+                alert("Selected date is not available. Next available date is " + nextAvailableDate);
+                startDatePicker.value = nextAvailableDate;
+            }
+        });
+        
+        // Update end date when start date changes
+        updateEndDate();
+    }
+
+    function updateEndDate() {
+        const startDate = document.getElementById('start_date').value;
+        const leaseTerm = parseInt(document.getElementById('lease_term').value);
+        
+        if (startDate && leaseTerm) {
+            const endDate = new Date(startDate);
+            endDate.setMonth(endDate.getMonth() + leaseTerm);
+            
+            const endDateStr = endDate.toISOString().split('T')[0];
+            document.getElementById('end_date').value = endDateStr;
+            
+            // Calculate and display the monthly rent cost
+            calculateCost();
+        }
+    }
+
+    function calculateCost() {
+        const monthlyRent = parseFloat("{{ apartment.rent }}");
+        const leaseTerm = parseInt(document.getElementById('lease_term').value);
+        const calculatedCostDisplay = document.getElementById('calculated_cost');
+        
+        if (leaseTerm) {
+            calculatedCostDisplay.innerHTML = `
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-2">Application Summary</h3>
+                    <div class="flex justify-between mb-1">
+                        <span>Application Fee:</span>
+                        <span>$50.00</span>
+                    </div>
+                    <div class="flex justify-between mb-1">
+                        <span>Monthly Rent:</span>
+                        <span>$${monthlyRent.toFixed(2)}</span>
+                    </div>
+                    <div class="flex justify-between mb-1">
+                        <span>Security Deposit:</span>
+                        <span>$${monthlyRent.toFixed(2)}</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">Lease Term: ${leaseTerm} months</p>
+                    <p class="text-sm text-gray-500 mt-1">Note: A $50 application fee is required to submit your application. If your application is approved, you will be required to pay the first month's rent and security deposit before moving in.</p>
+                </div>
+            `;
+        }
+    }
+
+    function togglePaymentFields() {
+        const paymentMethod = document.getElementById('payment_method').value;
+        const cardDetails = document.getElementById('card_details');
+        const bankDetails = document.getElementById('bank_details');
+        
+        if (paymentMethod === 'credit_card' || paymentMethod === 'debit_card') {
+            cardDetails.classList.remove('hidden');
+            bankDetails.classList.add('hidden');
+        } else if (paymentMethod === 'bank_transfer') {
+            cardDetails.classList.add('hidden');
+            bankDetails.classList.remove('hidden');
+        }
+    }
+    
+    window.onload = setMinDates;
+    </script>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Navbar -->
+    <nav class="bg-gray-800 p-4 text-white">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="{{ url_for('index') }}" class="text-2xl font-bold">Apartment Portal</a>
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('tenant_home') }}" class="hover:underline">View Apartments</a>
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('view_tenant_applications') }}" class="hover:underline">Applications</a>
+                    <a href="{{ url_for('logout') }}" class="hover:underline">Logout</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Rent Apartment Section -->
+    <section class="container mx-auto mt-8 px-4">
+        <div class="bg-white p-8 rounded-lg shadow-lg">
+            <h1 class="text-3xl font-bold mb-6">Rent Apartment</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Apartment Image -->
+                <div>
+                    <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2670&auto=format&fit=crop" 
+                         alt="Apartment {{ apartment.apartment_number }}" 
+                         class="w-full h-64 object-cover rounded-lg">
+                         
+                    <div class="mt-4">
+                        <h2 class="text-xl font-semibold">Apartment Details</h2>
+                        <div class="grid grid-cols-2 gap-2 mt-2">
+                            <div>
+                                <p class="text-gray-600 text-sm">Apartment Number</p>
+                                <p class="font-medium">{{ apartment.apartment_number }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600 text-sm">Floor</p>
+                                <p class="font-medium">{{ apartment.floor_number }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600 text-sm">Bedrooms</p>
+                                <p class="font-medium">{{ apartment.bedrooms }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600 text-sm">Bathrooms</p>
+                                <p class="font-medium">{{ apartment.bathrooms }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600 text-sm">Monthly Rent</p>
+                                <p class="font-medium text-blue-600">${{ apartment.rent }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600 text-sm">Status</p>
+                                <p class="font-medium">{{ apartment.status|title }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apartment Rental Form -->
+                <div>
+                    <form action="{{ url_for('rent_apartment', apartment_id=apartment._id) }}" method="POST" class="mt-4">
+                        <input type="hidden" name="rent_type" value="monthly">
+                        
+                        <!-- Lease Terms -->
+                        <div class="mb-4">
+                            <label class="block text-gray-700 font-semibold mb-2">Lease Term</label>
+                            <select id="lease_term" name="lease_term" class="block w-full p-2 border rounded" onchange="updateEndDate()">
+                                <option value="6">6 months</option>
+                                <option value="12" selected>12 months</option>
+                                <option value="18">18 months</option>
+                                <option value="24">24 months</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Date Selection -->
+                        <div class="mb-4">
+                            <label class="block text-gray-700 font-semibold mb-2">Move-in Date</label>
+                            <input type="date" id="start_date" name="start_date" class="block w-full p-2 border rounded" 
+                                   onchange="disableUnavailableDates()">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 font-semibold mb-2">Lease End Date</label>
+                            <input type="date" id="end_date" name="end_date" class="block w-full p-2 border rounded" readonly>
+                            <p class="text-sm text-gray-500 mt-1">End date is calculated based on lease term</p>
+                        </div>
+
+                        <!-- Calculated Cost Display -->
+                        <div id="calculated_cost" class="mb-6"></div>
+
+                        <!-- Payment Section -->
+                        <div class="mb-6 border-t pt-4">
+                            <h3 class="font-semibold text-lg mb-3">Payment Information</h3>
+                            <p class="text-gray-600 mb-4">
+                                A $50 application fee is required to submit your application.
+                            </p>
+                            
+                            <div class="mb-4">
+                                <label for="payment_method" class="block text-gray-700 font-semibold mb-2">Payment Method</label>
+                                <select id="payment_method" name="payment_method" class="block w-full p-2 border rounded" onchange="togglePaymentFields()">
+                                    <option value="credit_card">Credit Card</option>
+                                    <option value="debit_card">Debit Card</option>
+                                    <option value="bank_transfer">Bank Transfer</option>
+                                </select>
+                            </div>
+                            
+                            <div id="card_details" class="space-y-4">
+                                <div>
+                                    <label for="card_number" class="block text-gray-700 font-semibold mb-2">Card Number</label>
+                                    <input type="text" id="card_number" name="card_number" placeholder="1234 5678 9012 3456" 
+                                           class="block w-full p-2 border rounded">
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="expiry_date" class="block text-gray-700 font-semibold mb-2">Expiry Date</label>
+                                        <input type="text" id="expiry_date" name="expiry_date" placeholder="MM/YY" 
+                                               class="block w-full p-2 border rounded">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="cvv" class="block text-gray-700 font-semibold mb-2">CVV</label>
+                                        <input type="text" id="cvv" name="cvv" placeholder="123" 
+                                               class="block w-full p-2 border rounded">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="bank_details" class="space-y-4 hidden">
+                                <div>
+                                    <label for="account_number" class="block text-gray-700 font-semibold mb-2">Account Number</label>
+                                    <input type="text" id="account_number" name="account_number" placeholder="Account Number" 
+                                           class="block w-full p-2 border rounded">
+                                </div>
+                                
+                                <div>
+                                    <label for="routing_number" class="block text-gray-700 font-semibold mb-2">Routing Number</label>
+                                    <input type="text" id="routing_number" name="routing_number" placeholder="Routing Number" 
+                                           class="block w-full p-2 border rounded">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <p class="text-gray-600 mb-4">
+                                Your application will be reviewed by a community manager. If approved, 
+                                you will be notified and required to complete payment to finalize your lease.
+                            </p>
+                            
+                            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                Submit Application and Pay Fee
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>

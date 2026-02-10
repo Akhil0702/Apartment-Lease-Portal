@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin View Applications</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <!-- Navbar -->
+  <nav class="bg-gray-700 p-4 text-white shadow-md">
+    <div class="container mx-auto flex justify-between items-center">
+      <a href="{{ url_for('admin_home') }}" class="text-2xl font-bold">Admin Dashboard</a>
+      <div class="flex space-x-6 text-sm">
+        <a href="{{ url_for('admin_home') }}" class="hover:underline">Dashboard</a>
+        <a href="{{ url_for('admin_view_applications') }}" class="hover:underline font-semibold text-yellow-400">Applications</a>
+        <a href="{{ url_for('logout') }}" class="hover:underline">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Filter Options -->
+  <section class="container mx-auto px-6 py-10">
+    <div class="bg-white p-6 rounded-xl shadow-xl">
+      <h2 class="text-2xl font-bold text-center mb-8 text-gray-800">Filter Options</h2>
+      <form method="GET" action="{{ url_for('admin_view_applications') }}" class="flex flex-wrap justify-center mb-4">
+        <div class="w-full md:w-1/2 xl:w-1/3 p-6">
+          <label for="status" class="form-label">Status</label>
+          <select class="form-select" id="status" name="status">
+            <option value="">All Statuses</option>
+            <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="approved" {% if selected_status == 'approved' %}selected{% endif %}>Approved</option>
+            <option value="rejected" {% if selected_status == 'rejected' %}selected{% endif %}>Rejected</option>
+            <option value="completed" {% if selected_status == 'completed' %}selected{% endif %}>Completed</option>
+            <option value="canceled" {% if selected_status == 'canceled' %}selected{% endif %}>Canceled</option>
+          </select>
+        </div>
+        <div class="w-full md:w-1/2 xl:w-1/3 p-6">
+          <label for="community_id" class="form-label">Community</label>
+          <select class="form-select" id="community_id" name="community_id">
+            <option value="">All Communities</option>
+            {% for community in communities %}
+              <option value="{{ community._id }}" {% if selected_community == community._id|string %}selected{% endif %}>
+                {{ community.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="w-full md:w-1/2 xl:w-1/3 p-6">
+          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-3 py-1 rounded-lg transition w-full">Apply Filters</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Applications Section -->
+  <section class="container mx-auto px-6 py-10">
+    <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">📄 Manage Applications</h1>
+
+    {% if applications %}
+    <div class="bg-white p-6 rounded-xl shadow-xl overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 text-sm">
+        <thead class="bg-gray-100 sticky top-0">
+          <tr>
+            <th class="px-4 py-3 font-semibold text-gray-600">Application ID</th>
+            <th class="px-4 py-3 font-semibold text-gray-600">Apartment Title</th>
+            <th class="px-4 py-3 font-semibold text-gray-600">Price</th>
+            <th class="px-4 py-3 font-semibold text-gray-600">Duration</th>
+            <th class="px-4 py-3 font-semibold text-gray-600">Status</th>
+            <th class="px-4 py-3 font-semibold text-gray-600">Applied On</th>
+            <th class="px-4 py-3 font-semibold text-gray-600">Action</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-100">
+          {% for application in applications %}
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 text-gray-700">{{ application._id }}</td>
+            <td class="px-4 py-3 text-gray-700">{{ application.apartment_id }}</td>
+            <td class="px-4 py-3 text-gray-700">${{ application.monthly_rent }} /month </td>
+            <td class="px-4 py-3 text-gray-700 capitalize">{{ application.duration }} days</td>
+            <td class="px-4 py-3">
+              <span class="text-sm font-semibold 
+                {% if application.status == 'returned' %} text-green-600 
+                {% elif application.status == 'return_initiated' %} text-yellow-500 
+                {% elif application.status == 'canceled' %} text-red-500 
+                {% else %} text-gray-600 
+                {% endif %}">
+                {{ application.status | capitalize }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-gray-600">{{ application.application_date.strftime('%B %d, %Y') }}</td>
+            <td class="px-4 py-3">
+              <form action="{{ url_for('admin_view_applications') }}" method="POST" class="flex items-center space-x-2">
+                <input type="hidden" name="application_id" value="{{ application._id }}">
+                <select name="status" class="border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring focus:border-blue-500">
+                  <option value="pending" {% if application.status == 'pending' %}selected{% endif %}>Pending</option>
+                  <option value="approved" {% if application.status == 'approved' %}selected{% endif %}>Approved</option>
+                  <option value="rejected" {% if application.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                  <option value="completed" {% if application.status == 'completed' %}selected{% endif %}>Completed</option>
+                  <option value="canceled" {% if application.status == 'canceled' %}selected{% endif %}>Canceled</option>
+                </select>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-3 py-1 rounded-lg transition">
+                  Update
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-center text-gray-500 mt-12">No applications available at the moment.</p>
+    {% endif %}
+  </section>
+
+</body>
+</html>

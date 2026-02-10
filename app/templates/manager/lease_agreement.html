@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lease Agreement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-brand {
+            margin-left: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .navbar-links {
+            margin-right: 20px;
+        }
+        .navbar-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+            font-size: 14px;
+        }
+        .section {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .info-item {
+            margin-bottom: 15px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #555;
+        }
+        .info-value {
+            margin-top: 5px;
+        }
+        .payment-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .button-primary {
+            background-color: #4285f4;
+            color: white;
+        }
+        .button-secondary {
+            background-color: #5f6368;
+            color: white;
+        }
+        .button-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .status-badge.pending {
+            background-color: #ff9800;
+            color: white;
+        }
+        .status-badge.completed {
+            background-color: #03a9f4;
+            color: white;
+        }
+        .status-badge.active {
+            background-color: #2ecc71;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="navbar-brand">Apartment Management</div>
+        <div class="navbar-links">
+            <a href="{{ url_for('manager_home') }}">Dashboard</a>
+            <a href="{{ url_for('manager_logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="section">
+            <div class="section-title">Lease Agreement</div>
+            
+            <div class="info-grid">
+                <!-- Tenant Information -->
+                <div class="info-item">
+                    <div class="info-label">Tenant Name</div>
+                    <div class="info-value">{{ tenant.name }} {{ tenant.last_name }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Apartment Number</div>
+                    <div class="info-value">{{ apartment.apartment_number }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Lease Start Date</div>
+                    <div class="info-value">{{ lease.start_date.strftime('%Y-%m-%d') }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Lease End Date</div>
+                    <div class="info-value">{{ lease.end_date.strftime('%Y-%m-%d') }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Monthly Rent</div>
+                    <div class="info-value">${{ lease.monthly_rent }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Security Deposit</div>
+                    <div class="info-value">${{ lease.security_deposit }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Status</div>
+                    <div class="info-value">
+                        {% if lease.status == 'pending' %}
+                            <span class="status-badge pending">Pending Completion</span>
+                        {% elif lease.status == 'completed' %}
+                            <span class="status-badge completed">Completed - Payment Required</span>
+                        {% elif lease.status == 'active_paid' %}
+                            <span class="status-badge active">Active - Payment Received</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if lease.status == 'pending' %}
+            <div class="action-buttons" style="margin-top: 20px; text-align: center;">
+                <form method="POST" action="{{ url_for('manager_complete_lease', lease_id=lease._id) }}">
+                    <button type="submit" class="button button-primary">Complete Lease Agreement</button>
+                </form>
+            </div>
+            {% endif %}
+
+            {% if lease.status == 'completed' %}
+            <div class="payment-section">
+                <div class="section-title">Initial Payment Details</div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Total Amount Due</div>
+                        <div class="info-value">${{ lease.security_deposit + lease.monthly_rent }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Payment Method</div>
+                        <div class="info-value">
+                            <form method="POST" action="{{ url_for('manager_process_payment', lease_id=lease._id) }}">
+                                <select name="payment_method" required class="form-select">
+                                    <option value="credit_card">Credit Card</option>
+                                    <option value="bank_transfer">Bank Transfer</option>
+                                    <option value="cash">Cash</option>
+                                </select>
+                                <div style="margin-top: 10px;">
+                                    <input type="text" name="transaction_id" placeholder="Enter transaction ID" required class="form-input">
+                                </div>
+                                <div style="margin-top: 10px;">
+                                    <button type="submit" class="button button-success">Process Payment</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

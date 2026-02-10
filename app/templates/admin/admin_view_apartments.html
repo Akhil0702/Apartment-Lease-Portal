@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>View Apartments by Community</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f2f5;
+    }
+    .navbar {
+      background-color: #333;
+      color: white;
+      padding: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar-brand {
+      margin-left: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .navbar-links {
+      margin-right: 20px;
+    }
+    .navbar-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .section {
+      background-color: white;
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .section-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .community-title {
+      font-size: 20px;
+      color: #4285f4;
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #eee;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .table th, .table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    .table th {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #5f6368;
+    }
+    .badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+    .badge-success {
+      background-color: #e6f4ea;
+      color: #34a853;
+    }
+    .badge-warning {
+      background-color: #fef7e0;
+      color: #f9ab00;
+    }
+    .badge-danger {
+      background-color: #fce8e6;
+      color: #ea4335;
+    }
+    .button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .button-secondary {
+      background-color: #5f6368;
+      color: white;
+    }
+    .no-apartments {
+      text-align: center;
+      padding: 20px;
+      color: #5f6368;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="navbar-brand">Apartment Management</div>
+    <div class="navbar-links">
+      <a href="{{ url_for('admin_home') }}">Dashboard</a>
+      <a href="{{ url_for('admin_logout') }}">Logout</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Apartments by Community</h1>
+    
+    {% for community in communities %}
+    <div class="section">
+      <div class="community-title">{{ community.name }}</div>
+      
+      {% if community.apartments %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Apartment #</th>
+            <th>Floor</th>
+            <th>Bedrooms</th>
+            <th>Bathrooms</th>
+            <th>Rent</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for apartment in community.apartments %}
+          <tr>
+            <td>{{ apartment.apartment_number }}</td>
+            <td>{{ apartment.floor_number }}</td>
+            <td>{{ apartment.bedrooms }}</td>
+            <td>{{ apartment.bathrooms }}</td>
+            <td>${{ apartment.rent }}</td>
+            <td>
+              <span class="badge 
+                {% if apartment.status == 'available' %}badge-success
+                {% elif apartment.status == 'occupied' %}badge-warning
+                {% elif apartment.status == 'maintenance' %}badge-danger
+                {% else %}{% endif %}">
+                {{ apartment.status|default('Unknown') }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="no-apartments">No apartments found in this community.</div>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="section">
+      <div class="no-apartments">No communities found.</div>
+    </div>
+    {% endfor %}
+    
+    <a href="{{ url_for('admin_home') }}" class="button button-secondary">Back to Dashboard</a>
+  </div>
+</body>
+</html>

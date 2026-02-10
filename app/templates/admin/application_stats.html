@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Application Statistics</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>Filter Options</h2>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('admin_application_stats') }}" class="row g-3">
+                <div class="col-md-4">
+                    <label for="timeframe" class="form-label">Timeframe</label>
+                    <select class="form-select" id="timeframe" name="timeframe">
+                        <option value="day" {% if selected_timeframe == 'day' %}selected{% endif %}>Today</option>
+                        <option value="week" {% if selected_timeframe == 'week' %}selected{% endif %}>This Week</option>
+                        <option value="month" {% if selected_timeframe == 'month' %}selected{% endif %}>This Month</option>
+                        <option value="year" {% if selected_timeframe == 'year' %}selected{% endif %}>This Year</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Apply Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Application Trends</h2>
+                </div>
+                <div class="card-body">
+                    <h3>
+                        {% if selected_timeframe == 'day' %}
+                            Today
+                        {% elif selected_timeframe == 'week' %}
+                            This Week
+                        {% elif selected_timeframe == 'month' %}
+                            This Month
+                        {% elif selected_timeframe == 'year' %}
+                            This Year
+                        {% else %}
+                            Selected Period
+                        {% endif %}
+                    </h3>
+                    <p class="display-4">{{ stats.total }}</p>
+                    <p>Total Applications</p>
+                    
+                    <h4>Status Breakdown</h4>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Count</th>
+                                <th>Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for status, count in stats.by_status.items() %}
+                                <tr>
+                                    <td>
+                                        <span class="badge 
+                                            {% if status == 'approved' %}bg-success
+                                            {% elif status == 'pending' %}bg-warning
+                                            {% elif status == 'rejected' %}bg-danger
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ count }}</td>
+                                    <td>
+                                        {% if stats.total > 0 %}
+                                            {{ ((count / stats.total) * 100)|round(1) }}%
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Applications by Community</h2>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Community</th>
+                                <th>Total</th>
+                                <th>Pending</th>
+                                <th>Approved</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comm_id, data in community_stats.items() %}
+                                <tr>
+                                    <td>{{ community_names.get(comm_id, 'Unknown') }}</td>
+                                    <td>{{ data.total }}</td>
+                                    <td>{{ data.by_status.get('pending', 0) }}</td>
+                                    <td>{{ data.by_status.get('approved', 0) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <a href="{{ url_for('admin_export_lease_summary') }}" class="btn btn-success">
+                <i class="bi bi-download"></i> Export Lease Summary
+            </a>
+            <a href="{{ url_for('admin_view_applications') }}" class="btn btn-secondary">
+                Back to Applications
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>View Tenants</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f2f5;
+    }
+    .navbar {
+      background-color: #333;
+      color: white;
+      padding: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar-brand {
+      margin-left: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .navbar-links {
+      margin-right: 20px;
+    }
+    .navbar-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .section {
+      background-color: white;
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .section-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .button-primary {
+      background-color: #4285f4;
+      color: white;
+    }
+    .button-secondary {
+      background-color: #5f6368;
+      color: white;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .table th, .table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    .table th {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #5f6368;
+    }
+    .action-link {
+      color: #4285f4;
+      text-decoration: none;
+      margin-right: 10px;
+      font-size: 14px;
+    }
+    .tenant-card {
+      display: flex;
+      padding: 15px;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+    .tenant-info {
+      flex-grow: 1;
+    }
+    .tenant-name {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .tenant-detail {
+      font-size: 14px;
+      color: #5f6368;
+      margin-bottom: 3px;
+    }
+    .tenant-apartment {
+      background-color: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    .tenant-apartment-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .tenant-apartment-detail {
+      font-size: 13px;
+      color: #5f6368;
+      margin-bottom: 3px;
+    }
+    .tenant-actions {
+      display: flex;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="navbar-brand">Apartment Management</div>
+    <div class="navbar-links">
+      <a href="{{ url_for('manager_home') }}">Dashboard</a>
+      <a href="{{ url_for('manager_logout') }}">Logout</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Current Tenants</h1>
+    
+    <div class="section">
+      <div class="section-title">
+        <span>All Tenants</span>
+      </div>
+      
+      {% if tenants_info %}
+        {% for info in tenants_info %}
+        <div class="tenant-card">
+          <div class="tenant-info">
+            <div class="tenant-name">{{ info.tenant.first_name }} {{ info.tenant.last_name }}</div>
+            <div class="tenant-detail">Email: {{ info.tenant.email }}</div>
+            <div class="tenant-detail">Phone: {{ info.tenant.phone }}</div>
+            
+            <div class="tenant-apartment">
+              <div class="tenant-apartment-title">Apartment #{{ info.apartment.apartment_number }}</div>
+              <div class="tenant-apartment-detail">Floor: {{ info.apartment.floor_number }}</div>
+              <div class="tenant-apartment-detail">Bedrooms: {{ info.apartment.bedrooms }} | Bathrooms: {{ info.apartment.bathrooms }}</div>
+              <div class="tenant-apartment-detail">Monthly Rent: ${{ info.apartment.rent }}</div>
+              <div class="tenant-apartment-detail">Move-in Date: {{ info.lease.start_date.strftime('%Y-%m-%d') if info.lease.start_date else 'N/A' }}</div>
+            </div>
+          </div>
+          <div class="tenant-actions">
+            <a href="{{ url_for('manager_tenant_details', tenant_id=info.tenant._id) }}" class="action-link">View Details</a>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="text-align: center; padding: 20px;">No tenants found in your community.</p>
+      {% endif %}
+    </div>
+    
+    <a href="{{ url_for('manager_home') }}" class="button button-secondary">Back to Dashboard</a>
+  </div>
+</body>
+</html>

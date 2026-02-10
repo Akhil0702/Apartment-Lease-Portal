@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tenant Details</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f2f5;
+    }
+    .navbar {
+      background-color: #333;
+      color: white;
+      padding: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar-brand {
+      margin-left: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .navbar-links {
+      margin-right: 20px;
+    }
+    .navbar-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .section {
+      background-color: white;
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .section-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .info-item {
+      margin-bottom: 15px;
+    }
+    .info-label {
+      font-size: 14px;
+      color: #5f6368;
+      margin-bottom: 5px;
+    }
+    .info-value {
+      font-size: 16px;
+    }
+    .button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-block;
+      margin-right: 10px;
+    }
+    .button-primary {
+      background-color: #4285f4;
+      color: white;
+    }
+    .button-secondary {
+      background-color: #5f6368;
+      color: white;
+    }
+    .apartment-card {
+      border: 1px solid #eee;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .apartment-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .apartment-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+    .apartment-detail {
+      font-size: 14px;
+      color: #5f6368;
+    }
+    .lease-info {
+      background-color: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    .lease-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .lease-detail {
+      font-size: 13px;
+      color: #5f6368;
+      margin-bottom: 3px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="navbar-brand">Apartment Management</div>
+    <div class="navbar-links">
+      <a href="{{ url_for('manager_home') }}">Dashboard</a>
+      <a href="{{ url_for('manager_logout') }}">Logout</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Tenant Details</h1>
+    
+    <div class="section">
+      <div class="section-title">Personal Information</div>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Full Name</div>
+          <div class="info-value">{{ tenant.name }} {{ tenant.last_name }}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Email</div>
+          <div class="info-value">{{ tenant.email }}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Phone</div>
+          <div class="info-value">{{ tenant.phone }}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Date of Birth</div>
+          <div class="info-value">{{ tenant.dob if tenant.dob else 'N/A' }}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">SSN</div>
+          <div class="info-value">{{ tenant.ssn if tenant.ssn else 'N/A' }}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">Address Information</div>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Street Address</div>
+          <div class="info-value">{{ tenant.address if tenant.address else 'N/A' }}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">City</div>
+          <div class="info-value">{{ tenant.city if tenant.city else 'N/A' }}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">State</div>
+          <div class="info-value">{{ tenant.state if tenant.state else 'N/A' }}</div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-label">Zip Code</div>
+          <div class="info-value">{{ tenant.zipcode if tenant.zipcode else 'N/A' }}</div>
+        </div>
+        
+        {% if tenant.emergency_contact %}
+        <div class="info-item">
+          <div class="info-label">Emergency Contact</div>
+          <div class="info-value">{{ tenant.emergency_contact.name }} ({{ tenant.emergency_contact.phone }})</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">Occupied Apartments</div>
+      
+      {% if tenant_apartments %}
+        {% for item in tenant_apartments %}
+        <div class="apartment-card">
+          <div class="apartment-title">Apartment #{{ item.apartment.apartment_number }}</div>
+          <div class="apartment-details">
+            <div class="apartment-detail">Floor: {{ item.apartment.floor_number }}</div>
+            <div class="apartment-detail">Bedrooms: {{ item.apartment.bedrooms }}</div>
+            <div class="apartment-detail">Bathrooms: {{ item.apartment.bathrooms }}</div>
+            <div class="apartment-detail">Monthly Rent: ${{ item.apartment.rent }}</div>
+          </div>
+          
+          <div class="lease-info">
+            <div class="lease-title">Lease Information</div>
+            <div class="lease-detail">Application Date: {{ item.application.application_date.strftime('%Y-%m-%d') if item.application.application_date else 'N/A' }}</div>
+            {% if item.application.lease_start %}
+            <div class="lease-detail">Lease Start: {{ item.application.lease_start }}</div>
+            {% endif %}
+            {% if item.application.lease_end %}
+            <div class="lease-detail">Lease End: {{ item.application.lease_end }}</div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="text-align: center; padding: 10px;">No apartments currently occupied by this tenant.</p>
+      {% endif %}
+    </div>
+    
+    <a href="{{ url_for('manager_view_tenants') }}" class="button button-secondary">Back to Tenants</a>
+  </div>
+</body>
+</html>

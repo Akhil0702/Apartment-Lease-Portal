@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Tenant History</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>Tenant Information</h2>
+        </div>
+        <div class="card-body">
+            <p><strong>Name:</strong> {{ tenant.name }}</p>
+            <p><strong>Email:</strong> {{ tenant.email }}</p>
+            <p><strong>Phone:</strong> {{ tenant.phone }}</p>
+            <p><strong>Status:</strong> {{ tenant.status|default('Active') }}</p>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>Lease Applications</h2>
+        </div>
+        <div class="card-body">
+            {% if applications %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                            <tr>
+                                <td>{{ app._id }}</td>
+                                <td>{{ app.created_at|default('N/A') }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if app.status == 'approved' %}bg-success
+                                        {% elif app.status == 'pending' %}bg-warning
+                                        {% elif app.status == 'rejected' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ app.status|default('Unknown') }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#appModal{{ loop.index }}">
+                                        View Details
+                                    </button>
+                                    
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="appModal{{ loop.index }}" tabindex="-1" aria-labelledby="appModalLabel{{ loop.index }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="appModalLabel{{ loop.index }}">Application Details</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p><strong>Application ID:</strong> {{ app._id }}</p>
+                                                    <p><strong>Status:</strong> {{ app.status|default('Unknown') }}</p>
+                                                    <p><strong>Date:</strong> {{ app.created_at|default('N/A') }}</p>
+                                                    
+                                                    {% if app.apartment_id %}
+                                                        <p><strong>Apartment ID:</strong> {{ app.apartment_id }}</p>
+                                                    {% endif %}
+                                                    
+                                                    {% if app.community_id %}
+                                                        <p><strong>Community ID:</strong> {{ app.community_id }}</p>
+                                                    {% endif %}
+                                                    
+                                                    {% if app.notes %}
+                                                        <p><strong>Notes:</strong> {{ app.notes }}</p>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No lease applications found for this tenant.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>Payment Records</h2>
+        </div>
+        <div class="card-body">
+            {% if payments %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                            <tr>
+                                <td>{{ payment._id }}</td>
+                                <td>{{ payment.payment_date|default('N/A') }}</td>
+                                <td>${{ payment.amount|default('0.00') }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if payment.status == 'paid' %}bg-success
+                                        {% elif payment.status == 'pending' %}bg-warning
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ payment.status|default('Unknown') }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('admin_generate_invoice', payment_id=payment._id) }}" class="btn btn-sm btn-primary">
+                                        Generate Invoice
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No payment records found for this tenant.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <a href="{{ url_for('admin_view_tenants') }}" class="btn btn-secondary">Back to Tenants</a>
+</div>
+{% endblock %}

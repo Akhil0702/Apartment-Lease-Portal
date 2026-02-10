@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+        }
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-brand {
+            margin-left: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .navbar-links {
+            margin-right: 20px;
+        }
+        .navbar-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 15px;
+            font-size: 14px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .section {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .card-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .card-text {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .card-link {
+            color: #4285f4;
+            text-decoration: none;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .alert-warning {
+            background-color: #fef7e0;
+            color: #f9ab00;
+            border: 1px solid #feefc3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="navbar-brand">Apartment Management</div>
+        <div class="navbar-links">
+            <a href="{{ url_for('manager_logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1>Manager Dashboard</h1>
+        
+        {% if not session.get('community_id') %}
+        <div class="alert alert-warning">
+            You are not currently assigned to any community. Please contact the administrator to get assigned to a community.
+        </div>
+        {% else %}
+        <div class="card-container">
+            <!-- View Apartments Card -->
+            <div class="card">
+                <div class="card-title">Apartments</div>
+                <p class="card-text">View and manage apartments in your community.</p>
+                <a href="{{ url_for('manager_view_apartments') }}" class="card-link">View Apartments</a>
+            </div>
+            
+            <!-- Applications Card -->
+            <div class="card">
+                <div class="card-title">Applications</div>
+                <p class="card-text">Review and manage tenant applications.</p>
+                <a href="{{ url_for('manager_view_applications') }}" class="card-link">View Applications</a>
+            </div>
+            
+            <!-- Tenants Card -->
+            <div class="card">
+                <div class="card-title">Tenants</div>
+                <p class="card-text">Manage tenants in your community.</p>
+                <a href="{{ url_for('manager_view_tenants') }}" class="card-link">View Tenants</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

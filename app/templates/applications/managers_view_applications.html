@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager View Applications</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+
+    <!-- Navbar -->
+    <nav class="bg-gray-600 p-4 text-white">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="{{ url_for('index') }}" class="text-2xl font-bold">Apartment Store</a>
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('manager_home') }}" class="hover:underline">Dashboard</a>
+                <a href="{{ url_for('manager_view_applications') }}" class="hover:underline">Applications</a>
+                <a href="{{ url_for('logout') }}" class="hover:underline">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Applications Section -->
+    <section class="container mx-auto mt-8">
+        <h1 class="text-3xl font-bold text-center mb-6">All Applications</h1>
+
+        {% if applications %}
+            <div class="bg-white p-8 rounded-lg shadow-lg">
+                <table class="table-auto w-full text-left">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2">Application ID</th>
+                            <th class="px-4 py-2">Apartment Title</th>
+                            <th class="px-4 py-2">Tenant Name</th>
+                            <th class="px-4 py-2">Price</th>
+                            <th class="px-4 py-2">Rental Duration</th>
+                            <th class="px-4 py-2">Status</th>
+                            <th class="px-4 py-2">Application Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in applications %}
+                        <tr class="border-t">
+                            <td class="px-4 py-2">{{ application._id }}</td>
+                            <td class="px-4 py-2">{{ application.apartment.title if application.apartment else 'N/A' }}</td>
+                            <td class="px-4 py-2">{{ application.tenant_name }}</td>
+                            <td class="px-4 py-2">${{ application.price }}</td>
+                            <td class="px-4 py-2">{{ application.duration | capitalize }}</td>
+                            <td class="px-4 py-2">
+                                {% if application.status == 'return_initiated' %}
+                                <!-- Confirm Return Button -->
+                                <form action="{{ url_for('confirm_return', application_id=application._id) }}" method="POST">
+                                    <button type="submit" class="bg-green-500 text-white px-4 py-1 rounded-lg hover:bg-green-600">Confirm Return</button>
+                                </form>
+                                {% elif application.status in ['pending', 'out_for_delivery', 'shipped'] %}
+                                <!-- Dropdown to update status -->
+                                <form action="{{ url_for('update_application_status', application_id=application._id) }}" method="POST">
+                                    <input type="hidden" name="application_id" value="{{ application._id }}">
+                                    <div class="flex space-x-2 items-center">
+                                        <select name="status" class="border px-2 py-1 rounded-lg">
+                                            <option value="pending" {% if application.status == 'pending' %}selected{% endif %}>Pending</option>
+                                            <option value="out_for_delivery" {% if application.status == 'out_for_delivery' %}selected{% endif %}>Out for Delivery</option>
+                                            <option value="shipped" {% if application.status == 'shipped' %}selected{% endif %}>Shipped</option>
+                                            <option value="delivered" {% if application.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                                            <option value="canceled" {% if application.status == 'canceled' %}selected{% endif %}>Canceled</option>
+                                        </select>
+                                        <button type="submit" class="bg-blue-500 text-white px-4 py-1 rounded-lg hover:bg-blue-600">Update</button>
+                                    </div>
+                                </form>
+                                {% elif application.status == 'returned' %}
+                                <span class="text-green-500 font-bold">Returned</span>
+                                {% else %}
+                                <span class="text-gray-500 font-bold">{{ application.status | capitalize }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-2">{{ application.created_at.strftime('%B %d, %Y') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-center text-gray-600 mt-8">There are no applications yet.</p>
+        {% endif %}
+    </section>
+
+</body>
+</html>

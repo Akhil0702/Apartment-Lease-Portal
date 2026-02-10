@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Community Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f2f5;
+    }
+    .navbar {
+      background-color: #333;
+      color: white;
+      padding: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar-brand {
+      margin-left: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .navbar-links {
+      margin-right: 20px;
+    }
+    .navbar-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .section {
+      background-color: white;
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .section-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    select, input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .button-primary {
+      background-color: #4285f4;
+      color: white;
+    }
+    .button-success {
+      background-color: #34a853;
+      color: white;
+    }
+    .button-secondary {
+      background-color: #5f6368;
+      color: white;
+    }
+    .button-danger {
+      background-color: #ea4335;
+      color: white;
+    }
+    .form-inline {
+      display: flex;
+      align-items: flex-end;
+    }
+    .form-inline .form-group {
+      margin-right: 10px;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .table th, .table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    .table th {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #5f6368;
+    }
+    .badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+    .badge-success {
+      background-color: #e6f4ea;
+      color: #34a853;
+    }
+    .badge-danger {
+      background-color: #fce8e6;
+      color: #ea4335;
+    }
+    .action-link {
+      color: #4285f4;
+      text-decoration: none;
+      margin-right: 10px;
+      font-size: 14px;
+    }
+    .action-link.danger {
+      color: #ea4335;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 5px;
+      width: 400px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .modal-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    .modal-text {
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .modal-text.danger {
+      color: #ea4335;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="navbar-brand">Apartment Management</div>
+    <div class="navbar-links">
+      <a href="{{ url_for('admin_home') }}">Dashboard</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Community Management</h1>
+    
+    <!-- Filter Section -->
+    <div class="section">
+      <div class="section-title">Filter Options</div>
+      <form method="GET" action="{{ url_for('admin_view_communities') }}" class="form-inline">
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select id="status" name="status">
+            <option value="">All Statuses</option>
+            <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Inactive</option>
+          </select>
+        </div>
+        <button type="submit" class="button button-primary">Apply Filter</button>
+        <div style="flex-grow: 1; text-align: right;">
+          <a href="{{ url_for('admin_create_community') }}" class="button button-success">Create New Community</a>
+        </div>
+      </form>
+    </div>
+    
+    <!-- Communities Table -->
+    <div class="section">
+      <div class="section-title">Communities</div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Address</th>
+            <th>City</th>
+            <th>State</th>
+            <th>Zipcode</th>
+            <th>Status</th>
+            <th>Created At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for community in communities %}
+          <tr>
+            <td>{{ community.name }}</td>
+            <td>{{ community.location }}</td>
+            <td>{{ community.city }}</td>
+            <td>{{ community.state }}</td>
+            <td>{{ community.zipcode }}</td>
+            <td>
+              <span class="badge {% if community.status == 'active' %}badge-success{% else %}badge-danger{% endif %}">
+                {{ community.status|default('Active')|capitalize }}
+              </span>
+            </td>
+            <td>{{ community.created_at.strftime('%Y-%m-%d') if community.created_at else 'N/A' }}</td>
+            <td>
+              <a href="{{ url_for('admin_edit_community', community_id=community._id) }}" class="action-link">Edit</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" style="text-align: center;">No communities found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    <a href="{{ url_for('admin_home') }}" class="button button-secondary">Back to Dashboard</a>
+  </div>
+
+  <script>
+  </script>
+</body>
+</html>

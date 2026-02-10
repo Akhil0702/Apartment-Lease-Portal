@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Application Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <!-- Navbar -->
+  <nav class="bg-gray-800 text-white px-6 py-4 flex justify-between items-center">
+    <a href="{{ url_for('tenant_home') }}" class="text-2xl font-bold">Apartment Portal</a>
+    <div class="space-x-4 text-sm font-medium">
+      <a href="{{ url_for('view_tenant_applications') }}" class="hover:underline">My Applications</a>
+      <a href="{{ url_for('logout') }}" class="hover:underline">Logout</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-6 py-12">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">Application Details</h1>
+      
+      <div>
+        {% if application.status == 'pending' %}
+          <span class="inline-block px-3 py-1 text-sm font-semibold text-blue-700 bg-blue-100 rounded-full">Pending Review</span>
+        {% elif application.status == 'approved' %}
+          <span class="inline-block px-3 py-1 text-sm font-semibold text-green-700 bg-green-100 rounded-full">Approved</span>
+        {% elif application.status == 'rejected' %}
+          <span class="inline-block px-3 py-1 text-sm font-semibold text-red-700 bg-red-100 rounded-full">Rejected</span>
+        {% else %}
+          <span class="inline-block px-3 py-1 text-sm font-semibold text-gray-700 bg-gray-100 rounded-full">{{ application.status|title }}</span>
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- Apartment Information -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-800">Apartment Information</h2>
+      </div>
+      
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <p class="text-gray-600 text-sm">Apartment Number</p>
+            <p class="font-medium">{{ apartment.apartment_number }}</p>
+          </div>
+          
+          <div>
+            <p class="text-gray-600 text-sm">Community</p>
+            <p class="font-medium">{{ community.name if community else 'Unknown' }}</p>
+          </div>
+          
+          <div>
+            <p class="text-gray-600 text-sm">Floor</p>
+            <p class="font-medium">{{ apartment.floor_number }}</p>
+          </div>
+          
+          <div>
+            <p class="text-gray-600 text-sm">Bedrooms / Bathrooms</p>
+            <p class="font-medium">{{ apartment.bedrooms }} bed / {{ apartment.bathrooms }} bath</p>
+          </div>
+          
+          <div>
+            <p class="text-gray-600 text-sm">Monthly Rent</p>
+            <p class="font-medium text-blue-600">${{ apartment.rent }}</p>
+          </div>
+          
+          <div>
+            <p class="text-gray-600 text-sm">Status</p>
+            <p class="font-medium">{{ apartment.status|title }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Application Information -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-800">Application Information</h2>
+      </div>
+      
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <p class="text-gray-600 text-sm">Application Date</p>
+            <p class="font-medium">{{ application.application_date.strftime('%Y-%m-%d') if application.application_date else 'N/A' }}</p>
+          </div>
+          
+          <div>
+            <p class="text-gray-600 text-sm">Desired Move-in Date</p>
+            <p class="font-medium">{{ application.move_in_date.strftime('%Y-%m-%d') if application.move_in_date else 'N/A' }}</p>
+          </div>
+          
+          <div>
+            <p class="text-gray-600 text-sm">Lease Term</p>
+            <p class="font-medium">{{ application.lease_term }} months</p>
+          </div>
+          
+          <div>
+            <p class="text-gray-600 text-sm">Application Fee</p>
+            <p class="font-medium">$50</p>
+          </div>
+          
+          <div>
+            <p class="text-gray-600 text-sm">Application Fee Payment Status</p>
+            <p class="font-medium {% if application_fee_payment and application_fee_payment.status == 'completed' %}text-green-600{% else %}text-yellow-600{% endif %}">
+              {% if application_fee_payment %}
+                {{ application_fee_payment.status|title }}
+              {% else %}
+                Pending
+              {% endif %}
+            </p>
+          </div>
+          
+          {% if application.reviewed_by %}
+          <div>
+            <p class="text-gray-600 text-sm">Reviewed By</p>
+            <p class="font-medium">{{ application.reviewed_by }}</p>
+          </div>
+          {% endif %}
+          
+          {% if application.decision_date %}
+          <div>
+            <p class="text-gray-600 text-sm">Decision Date</p>
+            <p class="font-medium">{{ application.decision_date.strftime('%Y-%m-%d') if application.decision_date else 'N/A' }}</p>
+          </div>
+          {% endif %}
+        </div>
+        
+        {% if application.additional_notes %}
+        <div class="mt-4">
+          <p class="text-gray-600 text-sm mb-1">Additional Notes</p>
+          <p class="p-3 bg-gray-50 rounded-md">{{ application.additional_notes }}</p>
+        </div>
+        {% endif %}
+        
+        {% if application.status == 'rejected' and application.rejection_reason %}
+        <div class="mt-6 p-4 bg-red-50 border border-red-100 rounded-md">
+          <p class="text-gray-700 font-medium mb-1">Rejection Reason</p>
+          <p class="text-gray-600">{{ application.rejection_reason }}</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- Payment Section -->
+    {% if application.status == 'pending' and (not application_fee_payment or application_fee_payment.status != 'completed') %}
+      <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+          <h2 class="text-xl font-semibold text-gray-800">Application Fee Payment</h2>
+        </div>
+        
+        <div class="p-6">
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <p class="text-yellow-700">Please pay the $50 application fee to proceed with your application. Your application will be reviewed by a manager after the fee is paid.</p>
+          </div>
+          
+          <form action="{{ url_for('tenant_complete_lease_and_payment', application_id=application._id) }}" method="POST" class="space-y-6">
+            <input type="hidden" name="payment_type" value="application_fee">
+            <input type="hidden" name="amount" value="50">
+            
+            <div>
+              <label for="payment_method" class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+              <select id="payment_method" name="payment_method" required
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="credit_card">Credit Card</option>
+                <option value="debit_card">Debit Card</option>
+                <option value="bank_transfer">Bank Transfer</option>
+              </select>
+            </div>
+            
+            <div id="card_details" class="space-y-4">
+              <div>
+                <label for="card_number" class="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
+                <input type="text" id="card_number" name="card_number" placeholder="1234 5678 9012 3456" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label for="expiry_date" class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                  <input type="text" id="expiry_date" name="expiry_date" placeholder="MM/YY" 
+                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div>
+                  <label for="cvv" class="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                  <input type="text" id="cvv" name="cvv" placeholder="123" 
+                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+              </div>
+            </div>
+            
+            <div id="bank_details" class="space-y-4 hidden">
+              <div>
+                <label for="account_number" class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+                <input type="text" id="account_number" name="account_number" placeholder="Account Number" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              
+              <div>
+                <label for="routing_number" class="block text-sm font-medium text-gray-700 mb-1">Routing Number</label>
+                <input type="text" id="routing_number" name="routing_number" placeholder="Routing Number" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+            </div>
+            
+            <button type="submit" 
+                    class="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              Pay $50 Application Fee
+            </button>
+          </form>
+        </div>
+      </div>
+    {% endif %}
+    
+    <!-- Lease Agreement Section (if approved) -->
+    {% if application.status == 'approved' %}
+      {% if lease_agreement and lease_agreement.status == 'active_paid' %}
+      <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+          <h2 class="text-xl font-semibold text-gray-800">Lease Agreement</h2>
+        </div>
+        
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <p class="text-gray-600 text-sm">Start Date</p>
+              <p class="font-medium">{{ lease_agreement.start_date.strftime('%Y-%m-%d') if lease_agreement.start_date else 'N/A' }}</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-600 text-sm">End Date</p>
+              <p class="font-medium">{{ lease_agreement.end_date.strftime('%Y-%m-%d') if lease_agreement.end_date else 'N/A' }}</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-600 text-sm">Monthly Rent</p>
+              <p class="font-medium">${{ lease_agreement.monthly_rent }}</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-600 text-sm">Security Deposit</p>
+              <p class="font-medium">${{ lease_agreement.security_deposit }}</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-600 text-sm">Status</p>
+              <p class="font-medium text-green-600">{{ lease_agreement.status|replace('_', ' ')|title }}</p>
+            </div>
+          </div>
+          
+          <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <p class="text-green-700">Your lease is active and all payments have been completed. Welcome to your new home!</p>
+          </div>
+        </div>
+      </div>
+      {% elif initial_payment and initial_payment.status == 'completed' %}
+      <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+          <h2 class="text-xl font-semibold text-gray-800">Lease Agreement</h2>
+        </div>
+        
+        <div class="p-6">
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p class="text-yellow-700">Your payment has been processed. Your lease is being finalized.</p>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold text-green-800 mb-4">Congratulations! Your application has been approved.</h2>
+        <p class="text-green-700 mb-6">To proceed with the leasing process, please complete your payment to start your lease agreement.</p>
+        
+        <!-- Payment Information -->
+        <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+          <h3 class="text-lg font-semibold text-gray-800 mb-3">Payment Required</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <p class="text-gray-600 text-sm">First Month's Rent</p>
+              <p class="font-medium">${{ apartment.rent }}</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-600 text-sm">Security Deposit</p>
+              <p class="font-medium">${{ apartment.rent }}</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-600 text-sm">Total Due</p>
+              <p class="font-medium text-blue-600">${{ apartment.rent * 2 }}</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-600 text-sm">Payment Status</p>
+              <p class="font-medium text-yellow-600">
+                {% if initial_payment %}
+                  {{ initial_payment.status|title }}
+                {% else %}
+                  Pending
+                {% endif %}
+              </p>
+            </div>
+          </div>
+          
+          <form method="POST" action="{{ url_for('tenant_complete_lease_and_payment', application_id=application._id) }}" class="mt-4">
+            <div class="mb-4">
+              <label class="block text-gray-700 font-semibold mb-2">Payment Method</label>
+              <select name="payment_method" id="payment_method" class="block w-full p-2 border rounded" onchange="togglePaymentFields()">
+                <option value="">Select Payment Method</option>
+                <option value="credit_card">Credit Card</option>
+                <option value="bank_account">Bank Account</option>
+              </select>
+            </div>
+
+            <!-- Credit Card Fields -->
+            <div id="credit_card_fields" style="display: none;">
+              <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Card Number</label>
+                <input type="text" name="credit_card_number" placeholder="1234 5678 9012 3456" class="block w-full p-2 border rounded">
+              </div>
+              <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">Expiration Date</label>
+                  <input type="text" name="expiration_date" placeholder="MM/YY" class="block w-full p-2 border rounded">
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">CVV</label>
+                  <input type="text" name="cvv" placeholder="123" class="block w-full p-2 border rounded">
+                </div>
+              </div>
+            </div>
+
+            <!-- Bank Account Fields -->
+            <div id="bank_account_fields" style="display: none;">
+              <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Account Number</label>
+                <input type="text" name="account_number" class="block w-full p-2 border rounded">
+              </div>
+              <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Routing Number</label>
+                <input type="text" name="routing_number" class="block w-full p-2 border rounded">
+              </div>
+            </div>
+            
+            <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+              Complete Payment & Start Lease
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+    {% endif %}
+    
+    <div class="flex justify-between">
+      <a href="{{ url_for('view_tenant_applications') }}" 
+         class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">
+        Back to Applications
+      </a>
+      
+      {% if application.status == 'pending' %}
+      <form method="POST" action="{{ url_for('withdraw_application', application_id=application._id) }}" 
+            onsubmit="return confirm('Are you sure you want to withdraw this application? This action cannot be undone.');">
+        <button type="submit" 
+                class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+          Withdraw Application
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-6 mt-12">
+    <div class="max-w-7xl mx-auto px-6 flex justify-between items-center text-sm">
+      <p>&copy; 2025 Apartment Management. All rights reserved.</p>
+      <a href="#" class="hover:underline text-gray-300">Contact Us</a>
+    </div>
+  </footer>
+
+  <script>
+    function confirmWithdraw() {
+      if (confirm('Are you sure you want to withdraw this application? This action cannot be undone.')) {
+        // Submit withdrawal form
+        // This would be implemented with a form submission to a withdraw endpoint
+        alert('Application withdrawal functionality will be implemented.');
+      }
+    }
+    
+    function togglePaymentFields() {
+      const paymentMethod = document.getElementById('payment_method').value;
+      const creditCardFields = document.getElementById('credit_card_fields');
+      const bankAccountFields = document.getElementById('bank_account_fields');
+      
+      if (paymentMethod === 'credit_card') {
+        creditCardFields.style.display = 'block';
+        bankAccountFields.style.display = 'none';
+      } else if (paymentMethod === 'bank_account') {
+        creditCardFields.style.display = 'none';
+        bankAccountFields.style.display = 'block';
+      } else {
+        creditCardFields.style.display = 'none';
+        bankAccountFields.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>

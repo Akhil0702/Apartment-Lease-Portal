@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Apartment</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl h-full max-h-full md:max-h-[80%] overflow-y-auto">
+        <!-- Title -->
+        <h2 class="text-2xl font-bold mb-6 text-center">Edit Apartment</h2>
+        
+        <!-- Form for editing the apartment -->
+        <form method="POST" action="{{ url_for('edit_apartment', apartment_id=apartment._id) }}">
+            <!-- Two-column grid -->
+            <div class="grid grid-cols-2 gap-6">
+                <!-- Apartment Title -->
+                <div class="mb-4">
+                    <label for="title" class="block text-gray-700 mb-2">Apartment Title</label>
+                    <input type="text" id="title" name="title" value="{{ apartment.title }}" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                </div>
+
+                <!-- Author -->
+                <div class="mb-4">
+                    <label for="author" class="block text-gray-700 mb-2">Author</label>
+                    <input type="text" id="author" name="author" value="{{ apartment.author }}" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                </div>
+
+                <!-- Genre -->
+                <div class="mb-4">
+                    <label for="genre" class="block text-gray-700 mb-2">Genre</label>
+                    <select id="genre" name="genre" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                        <option value="">Select a genre</option>
+                        <option value="fiction" {% if apartment.genre == 'fiction' %}selected{% endif %}>Fiction</option>
+                        <option value="nonfiction" {% if apartment.genre == 'nonfiction' %}selected{% endif %}>Non-Fiction</option>
+                        <option value="fantasy" {% if apartment.genre == 'fantasy' %}selected{% endif %}>Fantasy</option>
+                        <option value="sciencefiction" {% if apartment.genre == 'sciencefiction' %}selected{% endif %}>Science Fiction</option>
+                        <option value="mystery" {% if apartment.genre == 'mystery' %}selected{% endif %}>Mystery</option>
+                        <option value="romance" {% if apartment.genre == 'romance' %}selected{% endif %}>Romance</option>
+                        <option value="thriller" {% if apartment.genre == 'thriller' %}selected{% endif %}>Thriller</option>
+                        <option value="biography" {% if apartment.genre == 'biography' %}selected{% endif %}>Biography</option>
+                        <option value="history" {% if apartment.genre == 'history' %}selected{% endif %}>History</option>
+                        <option value="selfhelp" {% if apartment.genre == 'selfhelp' %}selected{% endif %}>Self-Help</option>
+                    </select>
+                </div>
+
+                <!-- Condition -->
+                <div class="mb-4">
+                    <label for="condition" class="block text-gray-700 mb-2">Condition</label>
+                    <select id="condition" name="condition" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                        <option value="new" {% if apartment.condition == 'new' %}selected{% endif %}>New</option>
+                        <option value="good" {% if apartment.condition == 'good' %}selected{% endif %}>Good</option>
+                        <option value="fair" {% if apartment.condition == 'fair' %}selected{% endif %}>Fair</option>
+                        <option value="bad" {% if apartment.condition == 'bad' %}selected{% endif %}>Bad</option>
+                    </select>
+                </div>
+
+                <!-- Weekly Price -->
+                <div class="mb-4">
+                    <label for="weekly_price" class="block text-gray-700 mb-2">Weekly Price</label>
+                    <input type="text" id="weekly_price" name="weekly_price" value="{{ apartment.weekly_price }}" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                </div>
+
+                <!-- Monthly Price -->
+                <div class="mb-4">
+                    <label for="monthly_price" class="block text-gray-700 mb-2">Monthly Price</label>
+                    <input type="text" id="monthly_price" name="monthly_price" value="{{ apartment.monthly_price }}" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                </div>
+
+                <!-- Availability -->
+                <div class="mb-4">
+                    <label for="availability" class="block text-gray-700 mb-2">Availability</label>
+                    <select id="availability" name="availability" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                        <option value="available" {% if apartment.availability == 'available' %}selected{% endif %}>Available</option>
+                        <option value="unavailable" {% if apartment.availability == 'unavailable' %}selected{% endif %}>Unavailable</option>
+                    </select>
+                </div>
+
+                <!-- Status -->
+                <div class="mb-4">
+                    <label for="status" class="block text-gray-700 mb-2">Status</label>
+                    <select id="status" name="status" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>
+                        <option value="active" {% if apartment.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if apartment.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+
+                <!-- Description (full width in 2-column layout) -->
+                <div class="mb-4 col-span-2">
+                    <label for="description" class="block text-gray-700 mb-2">Description</label>
+                    <textarea id="description" name="description" rows="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" required>{{ apartment.description }}</textarea>
+                </div>
+
+                <!-- Image URL (full width in 2-column layout) -->
+                <div class="mb-4 col-span-2">
+                    <label for="image_url" class="block text-gray-700 mb-2">Image URL</label>
+                    <input type="url" id="image_url" name="image_url" value="{{ apartment.image_url }}" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500" placeholder="https://example.com/apartment-cover.jpg" required>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-between items-center mt-4">
+                <a href="{{ url_for('manager_home') }}" class="text-gray-600 hover:underline">Back to Dashboard</a>
+                <button type="submit" class="bg-gray-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700">Update Apartment</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

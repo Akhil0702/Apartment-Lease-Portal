@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+  </div>
+
+  <!-- Greeting -->
+  <div class="mb-10">
+    <h2 class="text-3xl font-bold text-gray-800 mb-1">Welcome, Admin 👋</h2>
+    <p class="text-gray-600">Manage communities, apartments, tenants, managers, and applications below.</p>
+  </div>
+
+  <!-- Dashboard Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+
+    <!-- Communities -->
+    <div class="bg-white border-l-4 border-yellow-500 shadow p-6 rounded-xl hover:shadow-lg transition duration-200">
+      <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Communities</h3>
+      <p class="text-4xl font-bold text-gray-800">{{ communities_count|default(0) }}</p>
+      <p class="text-sm text-gray-500 mt-1">Active communities</p>
+      <a href="{{ url_for('admin_view_communities') }}" class="text-yellow-600 hover:underline text-sm mt-3 inline-block">Manage Communities</a>
+    </div>
+
+    <!-- Apartments -->
+    <div class="bg-white border-l-4 border-blue-500 shadow p-6 rounded-xl hover:shadow-lg transition duration-200">
+      <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Apartments</h3>
+      <p class="text-4xl font-bold text-gray-800">{{ apartments_count }}</p>
+      <p class="text-sm text-gray-500 mt-1">Listed apartments</p>
+      <a href="{{ url_for('admin_view_apartments') }}" class="text-blue-600 hover:underline text-sm mt-3 inline-block">Manage Apartments</a>
+    </div>
+
+    <!-- Tenants -->
+    <div class="bg-white border-l-4 border-green-500 shadow p-6 rounded-xl hover:shadow-lg transition duration-200">
+      <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Tenants</h3>
+      <p class="text-4xl font-bold text-gray-800">{{ tenants_count }}</p>
+      <p class="text-sm text-gray-500 mt-1">Registered tenants</p>
+      <a href="{{ url_for('admin_view_tenants') }}" class="text-green-600 hover:underline text-sm mt-3 inline-block">Manage Tenants</a>
+    </div>
+
+    <!-- Managers -->
+    <div class="bg-white border-l-4 border-purple-500 shadow p-6 rounded-xl hover:shadow-lg transition duration-200">
+      <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Managers</h3>
+      <p class="text-4xl font-bold text-gray-800">{{ managers_count }}</p>
+      <p class="text-sm text-gray-500 mt-1">Active managers</p>
+      <a href="{{ url_for('admin_view_managers') }}" class="text-purple-600 hover:underline text-sm mt-3 inline-block">Manage Managers</a>
+    </div>
+
+  </div>
+
+  <!-- Management Sections -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+    <!-- Community Management -->
+    <div class="bg-white shadow rounded-xl p-6">
+      <h3 class="text-xl font-bold text-gray-800 mb-4">Community Management</h3>
+      <div class="space-y-3">
+        <a href="{{ url_for('admin_view_communities') }}" class="block bg-gray-50 hover:bg-gray-100 p-3 rounded-lg transition">
+          <div class="flex justify-between items-center">
+            <span class="font-medium">View All Communities</span>
+            <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded">{{ communities_count|default(0) }}</span>
+          </div>
+        </a>
+        <a href="{{ url_for('admin_create_community') }}" class="block bg-gray-50 hover:bg-gray-100 p-3 rounded-lg transition">
+          <span class="font-medium">Create New Community</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Manager Management -->
+    <div class="bg-white shadow rounded-xl p-6">
+      <h3 class="text-xl font-bold text-gray-800 mb-4">Manager Management</h3>
+      <div class="space-y-3">
+        <a href="{{ url_for('admin_view_managers') }}" class="block bg-gray-50 hover:bg-gray-100 p-3 rounded-lg transition">
+          <div class="flex justify-between items-center">
+            <span class="font-medium">View All Managers</span>
+            <span class="bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded">{{ managers_count }}</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Tenant Management -->
+    <div class="bg-white shadow rounded-xl p-6">
+      <h3 class="text-xl font-bold text-gray-800 mb-4">Tenant Management</h3>
+      <div class="space-y-3">
+        <a href="{{ url_for('admin_view_tenants') }}" class="block bg-gray-50 hover:bg-gray-100 p-3 rounded-lg transition">
+          <div class="flex justify-between items-center">
+            <span class="font-medium">View All Tenants</span>
+            <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">{{ tenants_count }}</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Application Management -->
+    <div class="bg-white shadow rounded-xl p-6">
+      <h3 class="text-xl font-bold text-gray-800 mb-4">Application Management</h3>
+      <div class="space-y-3">
+        <a href="{{ url_for('admin_view_applications') }}" class="block bg-gray-50 hover:bg-gray-100 p-3 rounded-lg transition">
+          <div class="flex justify-between items-center">
+            <span class="font-medium">View All Applications</span>
+            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">{{ applications_count }}</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

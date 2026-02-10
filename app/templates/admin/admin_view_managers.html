@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manager Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f2f5;
+    }
+    .navbar {
+      background-color: #333;
+      color: white;
+      padding: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .navbar-brand {
+      margin-left: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .navbar-links {
+      margin-right: 20px;
+    }
+    .navbar-links a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .section {
+      background-color: white;
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .section-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    select, input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .button-primary {
+      background-color: #4285f4;
+      color: white;
+    }
+    .button-success {
+      background-color: #34a853;
+      color: white;
+    }
+    .button-secondary {
+      background-color: #5f6368;
+      color: white;
+    }
+    .button-danger {
+      background-color: #ea4335;
+      color: white;
+    }
+    .form-inline {
+      display: flex;
+      align-items: flex-end;
+    }
+    .form-inline .form-group {
+      margin-right: 10px;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .table th, .table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    .table th {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #5f6368;
+    }
+    .badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+    .badge-success {
+      background-color: #e6f4ea;
+      color: #34a853;
+    }
+    .badge-warning {
+      background-color: #fef7e0;
+      color: #f9ab00;
+    }
+    .badge-danger {
+      background-color: #fce8e6;
+      color: #ea4335;
+    }
+    .action-link {
+      color: #4285f4;
+      text-decoration: none;
+      margin-right: 10px;
+      font-size: 14px;
+    }
+    .action-link.danger {
+      color: #ea4335;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 5px;
+      width: 400px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .modal-title {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+    .modal-text {
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="navbar-brand">Apartment Management</div>
+    <div class="navbar-links">
+      <a href="{{ url_for('admin_home') }}">Dashboard</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+  </div>
+
+  <!-- flash only one latets message -->
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="alert alert-success">
+        {{ messages[0] }}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Manager Management</h1>
+    
+    <!-- Filter Section -->
+    <div class="section">
+      <div class="section-title">Filter Options</div>
+      <form method="GET" action="{{ url_for('admin_view_managers') }}" class="form-inline">
+        <div class="form-group">
+          <label for="community_id">Community</label>
+          <select id="community_id" name="community_id">
+            <option value="">All Communities</option>
+            {% for community in communities %}
+              <option value="{{ community._id }}" {% if selected_community == community._id|string %}selected{% endif %}>
+                {{ community.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select id="status" name="status">
+            <option value="">All Statuses</option>
+            <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Inactive</option>
+          </select>
+        </div>
+        <button type="submit" class="button button-primary">Apply Filters</button>
+      </form>
+    </div>
+    
+    <!-- Managers Table -->
+    <div class="section">
+      <div class="section-title">Managers</div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Community</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for manager in managers %}
+          <tr>
+            <td>{% if manager.first_name and manager.last_name %}{{ manager.first_name }} {{ manager.last_name }}{% else %}{{ manager.user_name }}{% endif %}</td>
+            <td>{{ manager.email }}</td>
+            <td>{{ manager.phone }}</td>
+            <td>
+              <span class="badge 
+                {% if manager.status == 'active' %}badge-success
+                {% elif manager.status == 'pending' %}badge-warning
+                {% elif manager.status == 'inactive' %}badge-danger
+                {% else %}{% endif %}">
+                {{ manager.status|default('Unknown') }}
+              </span>
+            </td>
+            <td>{{ manager.community_name }}</td>
+            <td>
+              <a href="#" onclick="openStatusModal('{{ manager._id }}')" class="action-link">Change Status</a>
+              <a href="#" onclick="openCommunityModal('{{ manager._id }}')" class="action-link">Assign Community</a>
+              {% if manager.community_id %}
+              <a href="#" onclick="openUnassignModal('{{ manager._id }}')" class="action-link danger">Unassign Community</a>
+              {% endif %}
+              
+              <!-- Status Modal -->
+              <div id="statusModal{{ manager._id }}" class="modal">
+                <div class="modal-content">
+                  <div class="modal-title">Change Manager Status</div>
+                  <form method="POST" action="{{ url_for('admin_manager_status') }}">
+                    <input type="hidden" name="manager_id" value="{{ manager._id }}">
+                    <div class="form-group">
+                      <label for="status{{ manager._id }}">New Status</label>
+                      <select id="status{{ manager._id }}" name="status" required>
+                        <option value="active" {% if manager.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="pending" {% if manager.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="inactive" {% if manager.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                      </select>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" onclick="closeStatusModal('{{ manager._id }}')" class="button button-secondary">Cancel</button>
+                      <button type="submit" class="button button-primary">Save Changes</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              
+              <!-- Community Assignment Modal -->
+              <div id="communityModal{{ manager._id }}" class="modal">
+                <div class="modal-content">
+                  <div class="modal-title">Assign Community</div>
+                  <form method="POST" action="{{ url_for('admin_assign_community') }}">
+                    <input type="hidden" name="manager_id" value="{{ manager._id }}">
+                    <div class="form-group">
+                      <label for="community_id{{ manager._id }}">Community</label>
+                      <select id="community_id{{ manager._id }}" name="community_id" required>
+                        {% for community in communities %}
+                          <option value="{{ community._id }}" {% if manager.community_id == community._id|string %}selected{% endif %}>
+                            {{ community.name }}
+                            {% for mgr in managers %}
+                              {% if mgr.community_id == community._id|string and mgr._id != manager._id %}
+                                (Currently managed by: {{ mgr.first_name }} {{ mgr.last_name }})
+                              {% endif %}
+                            {% endfor %}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" onclick="closeCommunityModal('{{ manager._id }}')" class="button button-secondary">Cancel</button>
+                      <button type="submit" class="button button-primary">Assign</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              
+              <!-- Unassign Community Modal -->
+              <div id="unassignModal{{ manager._id }}" class="modal">
+                <div class="modal-content">
+                  <div class="modal-title">Unassign from Community</div>
+                  <div class="modal-text">
+                    Are you sure you want to unassign this manager from their current community ({{ manager.community_name }})?
+                  </div>
+                  <form method="POST" action="{{ url_for('admin_unassign_community') }}">
+                    <input type="hidden" name="manager_id" value="{{ manager._id }}">
+                    <div class="modal-footer">
+                      <button type="button" onclick="closeUnassignModal('{{ manager._id }}')" class="button button-secondary">Cancel</button>
+                      <button type="submit" class="button button-danger">Unassign</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              
+              <!-- Password Reset Modal -->
+              
+              
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="6" style="text-align: center;">No managers found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    
+    <a href="{{ url_for('admin_home') }}" class="button button-secondary">Back to Dashboard</a>
+  </div>
+
+  <script>
+    function openStatusModal(managerId) {
+      document.getElementById('statusModal' + managerId).style.display = 'block';
+    }
+    
+    function closeStatusModal(managerId) {
+      document.getElementById('statusModal' + managerId).style.display = 'none';
+    }
+    
+    function openCommunityModal(managerId) {
+      document.getElementById('communityModal' + managerId).style.display = 'block';
+    }
+    
+    function closeCommunityModal(managerId) {
+      document.getElementById('communityModal' + managerId).style.display = 'none';
+    }
+    
+    function openUnassignModal(managerId) {
+      document.getElementById('unassignModal' + managerId).style.display = 'block';
+    }
+    
+    function closeUnassignModal(managerId) {
+      document.getElementById('unassignModal' + managerId).style.display = 'none';
+    }
+    
+   
+    
+  
+  </script>
+</body>
+</html>

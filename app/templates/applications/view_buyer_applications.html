@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Applications</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+
+    <!-- Navbar -->
+    <nav class="bg-gray-600 p-4 text-white">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="{{ url_for('index') }}" class="text-2xl font-bold">Apartment Store</a>
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('tenant_home') }}" class="hover:underline">View Apartments</a>
+                {% if session.get('tenant_id') %}
+                    <a href="{{ url_for('view_tenant_applications') }}" class="hover:underline">Applications</a>
+                    <a href="{{ url_for('logout') }}" class="hover:underline">Logout</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Applications Section -->
+    <section class="container mx-auto mt-8">
+        <h1 class="text-3xl font-bold text-center mb-6">My Applications</h1>
+
+        {% if applications %}
+            <div class="bg-white p-8 rounded-lg shadow-lg">
+                <table class="table-auto w-full text-left">
+                    <thead>
+                        <tr>
+                            <th class="py-2 px-4 border-b">Application ID</th>
+                            <th class="py-2 px-4 border-b">Apartment Title</th>
+                            <th class="py-2 px-4 border-b">Status</th>
+                            <th class="py-2 px-4 border-b">Price</th>
+                            <th class="py-2 px-4 border-b">Start-End</th>
+                            <th class="py-2 px-4 border-b">No of Days</th>
+                            <th class="py-2 px-4 border-b">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in applications %}
+                        <tr>
+                            <td class="py-2 px-4 border-b">{{ application._id }}</td>
+                            <td class="py-2 px-4 border-b">{{ application.apartment.title if application.apartment else 'N/A' }}</td>
+                            <td class="py-2 px-4 border-b">{{ application.status }}</td>
+                            <td class="py-2 px-4 border-b">${{ application.price }}</td>
+                            <td class="py-2 px-4 border-b">{{ application.booked_period.start_date }}-{{ application.booked_period.end_date }}</td>
+                            <td class="py-2 px-4 border-b">{{ application.booked_period.number_of_days }}</td>
+                            <td class="py-2 px-4 border-b">
+                                {% if application.status == 'delivered' %}
+                                <!-- Return button for delivered applications -->
+                                <form action="{{ url_for('initiate_return', application_id=application._id) }}" method="POST">
+                                    <button type="submit" class="bg-red-500 text-white px-4 py-1 rounded-lg hover:bg-red-600">Initiate Return</button>
+                                </form>
+                                {% elif application.status == 'return_initiated' %}
+                                <span class="text-yellow-500 font-bold">Return Initiated</span>
+                                {% elif application.status == 'returned' %}
+                                <span class="text-green-500 font-bold">Returned</span>
+                                {% else %}
+                                <span class="text-gray-500 font-bold">{{ application.status | capitalize }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-center text-gray-600 mt-8">You have no applications yet.</p>
+        {% endif %}
+    </section>
+    <a href="{{ url_for('tenant_home') }}" class="block text-center mt-4 text-blue-500">Back to Home</a>
+
+</body>
+</html>

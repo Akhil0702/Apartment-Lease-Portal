@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Applications</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <!-- Navbar -->
+  <nav class="bg-gray-800 text-white px-6 py-4 flex justify-between items-center">
+    <a href="{{ url_for('tenant_home') }}" class="text-2xl font-bold">Apartment Portal</a>
+    <div class="space-x-4 text-sm font-medium">
+      <a href="{{ url_for('view_tenant_applications') }}" class="hover:underline">My Applications</a>
+      <a href="{{ url_for('logout') }}" class="hover:underline">Logout</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-6 py-12">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">My Applications</h1>
+    
+    {% if applications %}
+    <div class="grid grid-cols-1 gap-6">
+      {% for application in applications %}
+      <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+        <div class="space-y-4">
+          <div class="flex justify-between items-start">
+            <div>
+              {% if application.apartment %}
+              <h3 class="text-lg font-semibold text-gray-900">
+                Apartment {{ application.apartment.apartment_number }}
+                {% if application.is_renewal %}(Renewal Application){% endif %}
+              </h3>
+              {% endif %}
+              <p class="text-sm text-gray-500">Application #{{ application._id }}</p>
+              <p class="text-sm text-gray-500">Submitted on {{ application.application_date.strftime('%Y-%m-%d') }}</p>
+            </div>
+            <div class="flex items-center">
+              {% if application.status == 'pending' %}
+                <span class="px-3 py-1 text-yellow-800 bg-yellow-100 rounded-full text-sm">Pending</span>
+              {% elif application.status == 'approved' %}
+                <span class="px-3 py-1 text-green-800 bg-green-100 rounded-full text-sm">Approved</span>
+              {% elif application.status == 'rejected' %}
+                <span class="px-3 py-1 text-red-800 bg-red-100 rounded-full text-sm">Rejected</span>
+              {% elif application.status == 'completed' %}
+                <span class="px-3 py-1 text-green-800 bg-green-100 rounded-full text-sm">Active Lease</span>
+              {% endif %}
+            </div>
+          </div>
+
+          {% if application.apartment %}
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <p class="text-gray-600 text-sm">Apartment Details</p>
+              <p class="font-medium">{{ application.apartment.bedrooms }} bed / {{ application.apartment.bathrooms }} bath</p>
+              <p class="text-sm text-gray-500">Floor {{ application.apartment.floor_number }}</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-600 text-sm">Lease Period</p>
+              <p class="font-medium">{{ application.move_in_date.strftime('%Y-%m-%d') }} to {{ application.end_date.strftime('%Y-%m-%d') }}</p>
+              <p class="text-sm text-gray-500">{{ application.lease_term }} months</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-600 text-sm">Monthly Rent</p>
+              <p class="font-medium text-blue-600">${{ "%.2f"|format(application.monthly_rent) }}</p>
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="mt-4 flex justify-between items-center">
+            <a href="{{ url_for('application_details', application_id=application._id) }}" 
+               class="text-blue-600 hover:text-blue-800 font-medium">
+              View Details
+            </a>
+            
+            <div class="flex space-x-4 items-center">
+              {% if (application.status == 'approved' or application.status == 'completed') and application.lease_agreement %}
+                {% set days_remaining = ((application.lease_agreement.end_date - now).days) %}
+                {% if days_remaining <= 60 and days_remaining > 0 %}
+                  <span class="text-sm text-yellow-600 mr-2">{{ days_remaining }} days left to renew</span>
+                  <form method="POST" action="{{ url_for('initiate_lease_renewal', lease_id=application.lease_agreement._id) }}" class="inline">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                      Renew Lease
+                    </button>
+                  </form>
+                {% elif days_remaining > 60 %}
+                  <span class="text-sm text-gray-600">Contact manager for early renewal ({{ days_remaining }} days remaining)</span>
+                {% endif %}
+              {% endif %}
+              
+              {% if application.status == 'pending' %}
+              <form method="POST" action="{{ url_for('withdraw_application', application_id=application._id) }}" 
+                    class="inline"
+                    onsubmit="return confirm('Are you sure you want to withdraw this application?');">
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                  Withdraw Application
+                </button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">No Applications Found</h2>
+      <p class="text-gray-600 mb-6">You haven't submitted any apartment applications yet.</p>
+      <a href="{{ url_for('tenant_home') }}" 
+         class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 inline-block">
+        Browse Apartments
+      </a>
+    </div>
+    {% endif %}
+  </main>
+
+  
+</body>
+</html>
