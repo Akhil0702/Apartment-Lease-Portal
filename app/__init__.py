@@ -10,7 +10,7 @@ apartment = Flask(__name__, template_folder='templates', static_folder='static')
 UPLOAD_FOLDER = os.path.join(apartment.root_path, 'static', 'uploads')  # Use os.path.join to get the absolute path
 apartment.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-apartment.config["MONGO_URI"] = "os.environ.get("MONGO_URI")"
+apartment.config["MONGO_URI"] = os.environ.get("MONGO_URI")
 apartment.config['JWT_SECRET_KEY'] = "adb"
 apartment.secret_key = 'apartment'
 
